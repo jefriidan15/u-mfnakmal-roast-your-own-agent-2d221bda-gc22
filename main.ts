@@ -6,7 +6,21 @@ import { mkdirSync, rmSync, readdirSync, writeFileSync } from "node:fs";
 const ENTRY: string =
   "I asked my agent for a one-line fix; it wrote a roadmap, a migration plan, and a eulogy for the code that was working fine.";
 
+function isValidEntry(text: string): boolean {
+  // Single line, 1-200 chars, and no control characters (tabs/newlines
+  // would break the one-line roast format).
+  return (
+    text.length >= 1 &&
+    text.length <= 200 &&
+    !text.includes("\n") &&
+    !/[\u0000-\u001F\u007F]/.test(text)
+  );
+}
+
 function main(): void {
+  if (!isValidEntry(ENTRY)) {
+    throw new Error("entry must be a single line of 1-200 characters");
+  }
   // Prepare /output without ever removing the directory itself (grader root is read-only).
   mkdirSync("/output", { recursive: true });
   for (const name of readdirSync("/output")) {
